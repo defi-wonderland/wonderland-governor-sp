@@ -68,7 +68,6 @@ contract AliceGovernor is WonderGovernor {
 
     uint256 votingPower = balanceVotingPower.value;
 
-    //require(balanceVotingPower.exists, Errors.USER_BALANCE_DOES_NOT_EXISTS);
     if (!balanceVotingPower.exists) revert GovernorUserBalanceDoesNotExists();
     if (votingPower == 0) revert GovernorUserVotingBalanceIsZero();
 
