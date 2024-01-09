@@ -9,9 +9,11 @@ import {WonderERC20Votes} from 'contracts/governance/contracts/token/ERC20/exten
 
 contract RabbitToken is WonderERC20Votes {
   AliceGovernor public governor;
+  address private _owner;
 
   constructor(AliceGovernor _governor) EIP712('RabbitToken', '1') ERC20('RabbitToken', 'RBT') {
     governor = _governor;
+    _owner = msg.sender;
   }
 
   function _getProposalTypes() internal view virtual override returns (uint8[] memory) {
@@ -33,4 +35,16 @@ contract RabbitToken is WonderERC20Votes {
   function proposalTypes() external view returns (uint8[] memory) {
     return governor.proposalTypes();
   }
+
+  function mint(address _account, uint256 _amount) external {
+    _mint(_account, _amount);
+  }
+
+  // For testing purposes
+  modifier onlyOwner() {
+    if (msg.sender != _owner) revert Unauthorized();
+    _;
+  }
+
+  error Unauthorized();
 }
