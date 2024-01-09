@@ -263,11 +263,9 @@ abstract contract WonderVotes is Context, EIP712, Nonces, IERC6372, IWonderVotes
    */
   function _transferVotingUnits(address from, address to, uint256 amount) internal virtual {
     if (from == address(0)) {
-      //_push(_totalVotingPower, _add, SafeCast.toUint208(amount));
       _totalVotingPower = _totalVotingPower + amount;
     }
     if (to == address(0)) {
-      //_push(_totalVotingPower, _subtract, SafeCast.toUint208(amount));
       _totalVotingPower = _totalVotingPower - amount;
     }
 
@@ -290,7 +288,6 @@ abstract contract WonderVotes is Context, EIP712, Nonces, IERC6372, IWonderVotes
       if (from[i].account != address(0)) {
         _weight = from[i].weight;
         uint256 _votingUnits = amount * _weight / _weightSum;
-        //(uint256 oldValue, uint256 newValue) = _push(_delegateVotingPower[from[i].account][proposalType], _subtract, SafeCast.toUint208(_votingUnits));
         uint256 oldValue = _delegateVotingPower[from[i].account][proposalType];
         uint256 newValue = oldValue - _votingUnits;
         _delegateVotingPower[from[i].account][proposalType] = newValue;
@@ -302,7 +299,6 @@ abstract contract WonderVotes is Context, EIP712, Nonces, IERC6372, IWonderVotes
       if (to[i].account != address(0)) {
         _weight = to[i].weight;
         uint256 _votingUnits = amount * _weight / _weightSum;
-        //(uint256 oldValue, uint256 newValue) = _push(_delegateVotingPower[to[i].account][proposalType], _add, SafeCast.toUint208(_votingUnits));
         uint256 oldValue = _delegateVotingPower[to[i].account][proposalType];
         uint256 newValue = oldValue + _votingUnits;
         _delegateVotingPower[to[i].account][proposalType] = newValue;

@@ -13,6 +13,11 @@ import {StateProofVerifier} from '../libs/StateProofVerifier.sol';
  */
 interface IDataWarehouse {
   /**
+   * @notice error emitted when the storage root is not processed
+   */
+  error DataWareHouseUnprocessedStorageRoot();
+
+  /**
    * @notice event emitted when a storage root has been processed successfully
    * @param caller address that called the processStorageRoot method
    * @param account address where the root is generated
@@ -93,5 +98,5 @@ interface IDataWarehouse {
    *            the registry of the stkAave exchange rate slot
    * @param blockHash hash of the block from where the roots have been registered.
    */
-  function hasRequiredRoots(bytes32 blockHash) external view returns (bool);
+  function hasRequiredRoots(address token, bytes32 blockHash) external view returns (bool);
 }

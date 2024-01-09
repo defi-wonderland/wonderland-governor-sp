@@ -21,11 +21,6 @@ interface IWonderGovernor is IERC165, IERC6372 {
     TokenRootsNotUploaded
   }
 
-  struct VotingBalanceProof {
-    uint128 slot;
-    bytes proof;
-  }
-
   /**
    * @dev Empty proposal or a mismatch between the parameters length for a proposal call.
    */
@@ -113,6 +108,16 @@ interface IWonderGovernor is IERC165, IERC6372 {
    * @dev The proposalType is not supported by the governor.
    */
   error GovernorInvalidProposalType(uint8 proposalType);
+
+  /**
+   *  @dev user balance does not exits
+   */
+  error GovernorUserBalanceDoesNotExists();
+
+  /**
+   *  @dev user voting balance is zero
+   */
+  error GovernorUserVotingBalanceIsZero();
 
   /**
    * @dev Emitted when a proposal is created.
@@ -305,7 +310,7 @@ interface IWonderGovernor is IERC165, IERC6372 {
     address account,
     uint8 proposalType,
     uint256 timepoint,
-    VotingBalanceProof calldata votingBalanceProof
+    bytes calldata votingBalanceProof
   ) external view returns (uint256);
 
   /**
@@ -316,7 +321,7 @@ interface IWonderGovernor is IERC165, IERC6372 {
     address account,
     uint8 proposalType,
     uint256 timepoint,
-    VotingBalanceProof calldata votingBalanceProof,
+    bytes calldata votingBalanceProof,
     bytes memory params
   ) external view returns (uint256);
 
@@ -337,7 +342,7 @@ interface IWonderGovernor is IERC165, IERC6372 {
     address[] memory targets,
     uint256[] memory values,
     bytes[] memory calldatas,
-    VotingBalanceProof calldata votingBalanceProof,
+    bytes calldata votingBalanceProof,
     string memory description
   ) external returns (uint256 proposalId);
 
@@ -395,7 +400,7 @@ interface IWonderGovernor is IERC165, IERC6372 {
   function castVote(
     uint256 proposalId,
     uint8 support,
-    VotingBalanceProof calldata votingBalanceProof
+    bytes calldata votingBalanceProof
   ) external returns (uint256 balance);
 
   /**
@@ -406,7 +411,7 @@ interface IWonderGovernor is IERC165, IERC6372 {
   function castVoteWithReason(
     uint256 proposalId,
     uint8 support,
-    VotingBalanceProof calldata votingBalanceProof,
+    bytes calldata votingBalanceProof,
     string calldata reason
   ) external returns (uint256 balance);
 
@@ -418,7 +423,7 @@ interface IWonderGovernor is IERC165, IERC6372 {
   function castVoteWithReasonAndParams(
     uint256 proposalId,
     uint8 support,
-    VotingBalanceProof calldata votingBalanceProof,
+    bytes calldata votingBalanceProof,
     string calldata reason,
     bytes memory params
   ) external returns (uint256 balance);
@@ -431,7 +436,7 @@ interface IWonderGovernor is IERC165, IERC6372 {
   function castVoteBySig(
     uint256 proposalId,
     uint8 support,
-    VotingBalanceProof calldata votingBalanceProof,
+    bytes calldata votingBalanceProof,
     address voter,
     bytes memory signature
   ) external returns (uint256 balance);
@@ -445,7 +450,7 @@ interface IWonderGovernor is IERC165, IERC6372 {
   function castVoteWithReasonAndParamsBySig(
     uint256 proposalId,
     uint8 support,
-    VotingBalanceProof calldata votingBalanceProof,
+    bytes calldata votingBalanceProof,
     address voter,
     string calldata reason,
     bytes memory params,

@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import 'contracts/governance/WonderGovernor.sol';
-import 'contracts/governance/utils/WonderVotes.sol';
+import {WonderGovernor} from 'contracts/governance/WonderGovernor.sol';
+import {WonderVotes} from 'contracts/governance/utils/WonderVotes.sol';
 
-import 'contracts/libraries/Errors.sol';
-import 'contracts/libraries/SlotUtils.sol';
-import 'contracts/voting/interfaces/IDataWarehouse.sol';
-import 'contracts/voting/libs/StateProofVerifier.sol';
+import {RabbitToken} from '../examples/RabbitToken.sol';
+import {SlotUtils} from 'contracts/libraries/SlotUtils.sol';
+import {IDataWarehouse} from 'contracts/voting/interfaces/IDataWarehouse.sol';
+import {StateProofVerifier} from 'contracts/voting/libs/StateProofVerifier.sol';
 
 contract AliceGovernor is WonderGovernor {
   WonderVotes public votes;
@@ -16,6 +16,8 @@ contract AliceGovernor is WonderGovernor {
 
   mapping(uint256 proposalId => mapping(address => BallotReceipt)) public receipts;
   mapping(uint256 proposalId => ProposalTrack) public proposalTracks;
+
+  uint128 public immutable VP_SLOT = 0x1;
 
   /// @notice Ballot receipt record for a voter
   struct BallotReceipt {
@@ -51,7 +53,7 @@ contract AliceGovernor is WonderGovernor {
     address _account,
     uint8 _proposalType,
     uint256 _timepoint,
-    VotingBalanceProof calldata _votingBalanceProof,
+    bytes calldata _votingBalanceProof,
     bytes memory _params
   ) internal view virtual override returns (uint256) {
     // Validate proofs
@@ -60,14 +62,15 @@ contract AliceGovernor is WonderGovernor {
     StateProofVerifier.SlotValue memory balanceVotingPower = DATA_WAREHOUSE.getStorage(
       address(votes),
       _blockHash,
-      SlotUtils.getAccountSlotHash(_account, _proposalType, _votingBalanceProof.slot),
-      _votingBalanceProof.proof
+      SlotUtils.getAccountSlotHash(_account, _proposalType, _getVotingPowerSlot()),
+      _votingBalanceProof
     );
 
     uint256 votingPower = balanceVotingPower.value;
 
-    require(balanceVotingPower.exists, Errors.USER_BALANCE_DOES_NOT_EXISTS);
-    require(votingPower != 0, Errors.USER_VOTING_BALANCE_IS_ZERO);
+    //require(balanceVotingPower.exists, Errors.USER_BALANCE_DOES_NOT_EXISTS);
+    if (!balanceVotingPower.exists) revert GovernorUserBalanceDoesNotExists();
+    if (votingPower == 0) revert GovernorUserVotingBalanceIsZero();
 
     return votingPower;
   }
@@ -153,4 +156,12 @@ contract AliceGovernor is WonderGovernor {
   }
 
   error InvalidVoteType(uint8 voteType);
+
+  function _getVotingPowerSlot() internal view virtual override returns (uint128) {
+    return VP_SLOT;
+  }
+
+  function _getVotingToken() internal view virtual override returns (address) {
+    return address(votes);
+  }
 }

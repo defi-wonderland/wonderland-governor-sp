@@ -184,7 +184,7 @@ abstract contract WonderGovernor is
     if (deadline >= currentTimepoint) {
       // check that root exists, might be improved
       bytes32 _blockHash = blockhash(_proposals[proposalId].voteStart);
-      if (DATA_WAREHOUSE.hasRequiredRoots(_blockHash)) {
+      if (DATA_WAREHOUSE.hasRequiredRoots(address(_getVotingToken()), _blockHash)) {
         return ProposalState.Active;
       } else {
         return ProposalState.TokenRootsNotUploaded;
@@ -281,7 +281,7 @@ abstract contract WonderGovernor is
     address account,
     uint8 proposalType,
     uint256 timepoint,
-    VotingBalanceProof calldata votingBalanceProof,
+    bytes calldata votingBalanceProof,
     bytes memory params
   ) internal view virtual returns (uint256);
 
@@ -316,7 +316,7 @@ abstract contract WonderGovernor is
     address[] memory targets,
     uint256[] memory values,
     bytes[] memory calldatas,
-    VotingBalanceProof calldata votingBalanceProof,
+    bytes calldata votingBalanceProof,
     string memory description
   ) public virtual validProposalType(proposalType) returns (uint256) {
     address proposer = _msgSender();
@@ -550,7 +550,7 @@ abstract contract WonderGovernor is
     address account,
     uint8 proposalType,
     uint256 timepoint,
-    VotingBalanceProof calldata votingBalanceProof
+    bytes calldata votingBalanceProof
   ) public view virtual returns (uint256) {
     return _getVotes(account, proposalType, timepoint, votingBalanceProof, _defaultParams());
   }
@@ -562,7 +562,7 @@ abstract contract WonderGovernor is
     address account,
     uint8 proposalType,
     uint256 timepoint,
-    VotingBalanceProof calldata votingBalanceProof,
+    bytes calldata votingBalanceProof,
     bytes memory params
   ) public view virtual returns (uint256) {
     return _getVotes(account, proposalType, timepoint, votingBalanceProof, params);
@@ -574,7 +574,7 @@ abstract contract WonderGovernor is
   function castVote(
     uint256 proposalId,
     uint8 support,
-    VotingBalanceProof calldata votingBalanceProof
+    bytes calldata votingBalanceProof
   ) public virtual returns (uint256) {
     address voter = _msgSender();
     return _castVote(proposalId, voter, support, votingBalanceProof, '');
@@ -586,7 +586,7 @@ abstract contract WonderGovernor is
   function castVoteWithReason(
     uint256 proposalId,
     uint8 support,
-    VotingBalanceProof calldata votingBalanceProof,
+    bytes calldata votingBalanceProof,
     string calldata reason
   ) public virtual returns (uint256) {
     address voter = _msgSender();
@@ -599,7 +599,7 @@ abstract contract WonderGovernor is
   function castVoteWithReasonAndParams(
     uint256 proposalId,
     uint8 support,
-    VotingBalanceProof calldata votingBalanceProof,
+    bytes calldata votingBalanceProof,
     string calldata reason,
     bytes memory params
   ) public virtual returns (uint256) {
@@ -613,7 +613,7 @@ abstract contract WonderGovernor is
   function castVoteBySig(
     uint256 proposalId,
     uint8 support,
-    VotingBalanceProof calldata votingBalanceProof,
+    bytes calldata votingBalanceProof,
     address voter,
     bytes memory signature
   ) public virtual returns (uint256) {
@@ -636,7 +636,7 @@ abstract contract WonderGovernor is
   function castVoteWithReasonAndParamsBySig(
     uint256 proposalId,
     uint8 support,
-    VotingBalanceProof calldata votingBalanceProof,
+    bytes calldata votingBalanceProof,
     address voter,
     string calldata reason,
     bytes memory params,
@@ -677,7 +677,7 @@ abstract contract WonderGovernor is
     uint256 proposalId,
     address account,
     uint8 support,
-    VotingBalanceProof calldata votingBalanceProof,
+    bytes calldata votingBalanceProof,
     string memory reason
   ) internal virtual returns (uint256) {
     return _castVote(proposalId, account, support, votingBalanceProof, reason, _defaultParams());
@@ -693,7 +693,7 @@ abstract contract WonderGovernor is
     uint256 proposalId,
     address account,
     uint8 support,
-    VotingBalanceProof calldata votingBalanceProof,
+    bytes calldata votingBalanceProof,
     string memory reason,
     bytes memory params
   ) internal virtual returns (uint256) {
@@ -922,4 +922,8 @@ abstract contract WonderGovernor is
   function _getProposal(uint256 _proposalId) internal view virtual returns (ProposalCore memory) {
     return _proposals[_proposalId];
   }
+
+  function _getVotingPowerSlot() internal view virtual returns (uint128);
+
+  function _getVotingToken() internal view virtual returns (address);
 }

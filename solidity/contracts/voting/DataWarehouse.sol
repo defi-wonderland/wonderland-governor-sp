@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Errors} from '../libraries/Errors.sol';
 import {IDataWarehouse} from './interfaces/IDataWarehouse.sol';
 import {RLPReader} from './libs/RLPReader.sol';
 import {StateProofVerifier} from './libs/StateProofVerifier.sol';
@@ -23,12 +22,6 @@ contract DataWarehouse is IDataWarehouse {
 
   // account address => (block hash => (slot => slot value))
   mapping(address => mapping(bytes32 => mapping(bytes32 => uint256))) internal _slotsRegistered;
-
-  address public token;
-
-  constructor(address _token) {
-    token = _token;
-  }
 
   /// @inheritdoc IDataWarehouse
   function getStorageRoots(address account, bytes32 blockHash) public view returns (bytes32) {
@@ -70,7 +63,7 @@ contract DataWarehouse is IDataWarehouse {
     bytes memory storageProof
   ) public view returns (StateProofVerifier.SlotValue memory) {
     bytes32 root = _storageRoots[account][blockHash];
-    require(root != bytes32(0), Errors.UNPROCESSED_STORAGE_ROOT);
+    if (root == bytes32(0)) revert DataWareHouseUnprocessedStorageRoot();
 
     // The path for a storage value is the hash of its slot
     bytes32 proofPath = keccak256(abi.encodePacked(slot));
@@ -90,7 +83,7 @@ contract DataWarehouse is IDataWarehouse {
   }
 
   // @inheritdoc DataWarehouse
-  function hasRequiredRoots(bytes32 blockHash) public view returns (bool) {
-    return getStorageRoots(token, blockHash) != bytes32(0);
+  function hasRequiredRoots(address _token, bytes32 blockHash) public view returns (bool) {
+    return getStorageRoots(_token, blockHash) != bytes32(0);
   }
 }
