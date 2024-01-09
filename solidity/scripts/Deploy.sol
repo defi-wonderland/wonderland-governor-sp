@@ -13,6 +13,8 @@ abstract contract Deploy is Script {
   function _deploy(address _deployer) internal {
     vm.startBroadcast(_deployer);
 
+    console.log('deployer', _deployer);
+
     // Deploy the contracts
     DataWarehouse dataWarehouse = new DataWarehouse();
     console.log('Datawarehouse:', address(dataWarehouse));

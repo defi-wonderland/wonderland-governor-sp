@@ -43,8 +43,6 @@ abstract contract WonderVotes is Context, EIP712, Nonces, IERC6372, IWonderVotes
 
   mapping(address delegatee => mapping(uint8 proposalType => uint256)) private _delegateVotingPower;
 
-  uint256 private _totalVotingPower;
-
   mapping(address account => bool) private _nonDelegableAddresses;
 
   /**
@@ -82,13 +80,6 @@ abstract contract WonderVotes is Context, EIP712, Nonces, IERC6372, IWonderVotes
    */
   function getVotes(address account, uint8 proposalType) public view virtual returns (uint256) {
     return _delegateVotingPower[account][proposalType];
-  }
-
-  /**
-   * @dev Returns the current total supply of votes for a given `proposalType`.
-   */
-  function _getTotalSupply() internal view virtual returns (uint256) {
-    return _totalVotingPower;
   }
 
   /**
@@ -262,13 +253,6 @@ abstract contract WonderVotes is Context, EIP712, Nonces, IERC6372, IWonderVotes
    * Loops the proposalTypes implemented and calls the `_moveDelegateVotes` helper method.
    */
   function _transferVotingUnits(address from, address to, uint256 amount) internal virtual {
-    if (from == address(0)) {
-      _totalVotingPower = _totalVotingPower + amount;
-    }
-    if (to == address(0)) {
-      _totalVotingPower = _totalVotingPower - amount;
-    }
-
     uint8[] memory _proposalTypes = _getProposalTypes();
 
     for (uint256 _i = 0; _i < _proposalTypes.length; _i++) {
