@@ -24,8 +24,10 @@ contract DataWarehouse is IDataWarehouse {
   // account address => (block hash => (slot => slot value))
   mapping(address => mapping(bytes32 => mapping(bytes32 => uint256))) internal _slotsRegistered;
 
-  function RABBIT() public pure virtual returns (address) {
-    return 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9; // TODO: change to rabbit address
+  address public token;
+
+  constructor(address _token) {
+    token = _token;
   }
 
   /// @inheritdoc IDataWarehouse
@@ -88,7 +90,7 @@ contract DataWarehouse is IDataWarehouse {
   }
 
   // @inheritdoc DataWarehouse
-  function hasRequiredRoots(bytes32 blockHash) external view {
-    require(getStorageRoots(RABBIT(), blockHash) != bytes32(0), Errors.MISSING_RABBIT_ROOTS);
+  function hasRequiredRoots(bytes32 blockHash) public view returns (bool) {
+    return getStorageRoots(token, blockHash) != bytes32(0);
   }
 }

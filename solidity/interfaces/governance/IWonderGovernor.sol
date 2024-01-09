@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import {IERC165} from '@openzeppelin/contracts/interfaces/IERC165.sol';
 import {IERC6372} from '@openzeppelin/contracts/interfaces/IERC6372.sol';
+import {IDataWarehouse} from 'contracts/voting/interfaces/IDataWarehouse.sol';
 
 /**
  * @dev Interface of the {WonderGovernor} core.
@@ -16,7 +17,13 @@ interface IWonderGovernor is IERC165, IERC6372 {
     Succeeded,
     Queued,
     Expired,
-    Executed
+    Executed,
+    TokenRootsNotUploaded
+  }
+
+  struct VotingBalanceProof {
+    uint128 slot;
+    bytes proof;
   }
 
   /**
@@ -294,7 +301,12 @@ interface IWonderGovernor is IERC165, IERC6372 {
    * Note: this can be implemented in a number of ways, for example by reading the delegated balance from one (or
    * multiple), {ERC20Votes} tokens.
    */
-  function getVotes(address account, uint8 proposalType, uint256 timepoint) external view returns (uint256);
+  function getVotes(
+    address account,
+    uint8 proposalType,
+    uint256 timepoint,
+    VotingBalanceProof calldata votingBalanceProof
+  ) external view returns (uint256);
 
   /**
    * @notice module:reputation
@@ -304,6 +316,7 @@ interface IWonderGovernor is IERC165, IERC6372 {
     address account,
     uint8 proposalType,
     uint256 timepoint,
+    VotingBalanceProof calldata votingBalanceProof,
     bytes memory params
   ) external view returns (uint256);
 
@@ -324,6 +337,7 @@ interface IWonderGovernor is IERC165, IERC6372 {
     address[] memory targets,
     uint256[] memory values,
     bytes[] memory calldatas,
+    VotingBalanceProof calldata votingBalanceProof,
     string memory description
   ) external returns (uint256 proposalId);
 
@@ -378,7 +392,11 @@ interface IWonderGovernor is IERC165, IERC6372 {
    *
    * Emits a {VoteCast} event.
    */
-  function castVote(uint256 proposalId, uint8 support) external returns (uint256 balance);
+  function castVote(
+    uint256 proposalId,
+    uint8 support,
+    VotingBalanceProof calldata votingBalanceProof
+  ) external returns (uint256 balance);
 
   /**
    * @dev Cast a vote with a reason
@@ -388,6 +406,7 @@ interface IWonderGovernor is IERC165, IERC6372 {
   function castVoteWithReason(
     uint256 proposalId,
     uint8 support,
+    VotingBalanceProof calldata votingBalanceProof,
     string calldata reason
   ) external returns (uint256 balance);
 
@@ -399,6 +418,7 @@ interface IWonderGovernor is IERC165, IERC6372 {
   function castVoteWithReasonAndParams(
     uint256 proposalId,
     uint8 support,
+    VotingBalanceProof calldata votingBalanceProof,
     string calldata reason,
     bytes memory params
   ) external returns (uint256 balance);
@@ -411,6 +431,7 @@ interface IWonderGovernor is IERC165, IERC6372 {
   function castVoteBySig(
     uint256 proposalId,
     uint8 support,
+    VotingBalanceProof calldata votingBalanceProof,
     address voter,
     bytes memory signature
   ) external returns (uint256 balance);
@@ -424,6 +445,7 @@ interface IWonderGovernor is IERC165, IERC6372 {
   function castVoteWithReasonAndParamsBySig(
     uint256 proposalId,
     uint8 support,
+    VotingBalanceProof calldata votingBalanceProof,
     address voter,
     string calldata reason,
     bytes memory params,
@@ -434,4 +456,10 @@ interface IWonderGovernor is IERC165, IERC6372 {
    * @notice Returns the types of proposals that are supported by the governor.
    */
   function proposalTypes() external view returns (uint8[] memory);
+
+  /**
+   * @notice method to get the DataWarehouse contract
+   * @return DataWarehouse contract
+   */
+  function DATA_WAREHOUSE() external view returns (IDataWarehouse);
 }

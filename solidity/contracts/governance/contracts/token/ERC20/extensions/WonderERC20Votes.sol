@@ -4,7 +4,6 @@
 pragma solidity ^0.8.20;
 
 import {ERC20} from '@openzeppelin/contracts/token/ERC20/ERC20.sol';
-import {Checkpoints} from '@openzeppelin/contracts/utils/structs/Checkpoints.sol';
 import {WonderVotes} from 'contracts/governance/utils/WonderVotes.sol';
 
 /**
@@ -65,23 +64,5 @@ abstract contract WonderERC20Votes is ERC20, WonderVotes {
    */
   function _getVotingUnits(address account) internal view virtual override returns (uint256) {
     return balanceOf(account);
-  }
-
-  /**
-   * @dev Get number of checkpoints for `account` given a `proposalType`.
-   */
-  function numCheckpoints(address account, uint8 proposalType) public view virtual returns (uint32) {
-    return _numCheckpoints(account, proposalType);
-  }
-
-  /**
-   * @dev Get the `pos`-th checkpoint for `account` given a `proposalType`.
-   */
-  function checkpoints(
-    address account,
-    uint8 proposalType,
-    uint32 pos
-  ) public view virtual returns (Checkpoints.Checkpoint208 memory) {
-    return _checkpoints(account, proposalType, pos);
   }
 }

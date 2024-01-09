@@ -70,22 +70,6 @@ interface IWonderVotes {
   function getVotes(address account, uint8 proposalType) external view returns (uint256);
 
   /**
-   * @dev Returns the amount of votes that `account` had at a specific moment in the past for a given `proposalType`.
-   * If the `clock()` is configured to use block numbers, this will return the value at the end of the corresponding block.
-   */
-  function getPastVotes(address account, uint8 proposalType, uint256 timepoint) external view returns (uint256);
-
-  /**
-   * @dev Returns the total supply of votes available at a specific moment in the past. If the `clock()` is
-   * configured to use block numbers, this will return the value at the end of the corresponding block.
-   *
-   * NOTE: This value is the sum of all available votes, which is not necessarily the sum of all delegated votes.
-   * Votes that have not been delegated are still part of total supply, even though they would not participate in a
-   * vote.
-   */
-  function getPastTotalSupply(uint256 timepoint) external view returns (uint256);
-
-  /**
    * @dev Returns the delegates that `account` has chosen for a given `proposalType`.
    */
   function delegates(address account, uint8 proposalType) external view returns (Delegate[] memory);

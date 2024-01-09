@@ -93,5 +93,5 @@ interface IDataWarehouse {
    *            the registry of the stkAave exchange rate slot
    * @param blockHash hash of the block from where the roots have been registered.
    */
-  function hasRequiredRoots(bytes32 blockHash) external view;
+  function hasRequiredRoots(bytes32 blockHash) external view returns (bool);
 }
