@@ -18,7 +18,7 @@ interface IWonderGovernor is IERC165, IERC6372 {
     Queued,
     Expired,
     Executed,
-    TokenRootsNotUploaded
+    WaitingActivation
   }
 
   /**
@@ -120,6 +120,11 @@ interface IWonderGovernor is IERC165, IERC6372 {
   error GovernorUserVotingBalanceIsZero();
 
   /**
+   * @dev when token roots are not uploaded for a blockhash
+   */
+  error GovernorTokenRootsNotUploaded(bytes32 blockHash);
+
+  /**
    * @dev Emitted when a proposal is created.
    */
   event ProposalCreated(
@@ -166,6 +171,11 @@ interface IWonderGovernor is IERC165, IERC6372 {
   event VoteCastWithParams(
     address indexed voter, uint256 proposalId, uint8 support, uint256 weight, string reason, bytes params
   );
+
+  /**
+   * @dev Emitted when a proposal is activated.
+   */
+  event ProposalActivated(uint256 proposalId);
 
   /**
    * @notice module:core
@@ -301,7 +311,7 @@ interface IWonderGovernor is IERC165, IERC6372 {
 
   /**
    * @notice module:reputation
-   * @dev Voting power of an `account` at a specific `timepoint` for a given `proposalType`.
+   * @dev Voting power of an `account` at a specific `blockHash` for a given `proposalType`.
    *
    * Note: this can be implemented in a number of ways, for example by reading the delegated balance from one (or
    * multiple), {ERC20Votes} tokens.
@@ -309,7 +319,7 @@ interface IWonderGovernor is IERC165, IERC6372 {
   function getVotes(
     address account,
     uint8 proposalType,
-    uint256 timepoint,
+    bytes32 blockHash,
     bytes calldata votingBalanceProof
   ) external view returns (uint256);
 
@@ -320,7 +330,7 @@ interface IWonderGovernor is IERC165, IERC6372 {
   function getVotesWithParams(
     address account,
     uint8 proposalType,
-    uint256 timepoint,
+    bytes32 blockHash,
     bytes calldata votingBalanceProof,
     bytes memory params
   ) external view returns (uint256);
@@ -342,9 +352,16 @@ interface IWonderGovernor is IERC165, IERC6372 {
     address[] memory targets,
     uint256[] memory values,
     bytes[] memory calldatas,
-    bytes calldata votingBalanceProof,
     string memory description
   ) external returns (uint256 proposalId);
+
+  /**
+   * @dev Validates proposer proposal threshold and check that the token roots for votes validation are uploaded.
+   * duration specified by {IGovernor-votingPeriod}.
+   *
+   * Emits a {ProposalActivated} event.
+   */
+  function activateProposal(uint256 proposalId, bytes calldata votingBalanceProof) external;
 
   /**
    * @dev Queue a proposal. Some governors require this step to be performed before execution can happen. If queuing

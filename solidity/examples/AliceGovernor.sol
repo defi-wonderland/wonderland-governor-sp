@@ -52,13 +52,11 @@ contract AliceGovernor is WonderGovernor {
   function _getVotes(
     address _account,
     uint8 _proposalType,
-    uint256 _timepoint,
+    bytes32 _blockHash,
     bytes calldata _votingBalanceProof,
     bytes memory _params
   ) internal view virtual override returns (uint256) {
     // Validate proofs
-    bytes32 _blockHash = blockhash(_timepoint);
-
     StateProofVerifier.SlotValue memory balanceVotingPower = DATA_WAREHOUSE.getStorage(
       address(votes),
       _blockHash,
