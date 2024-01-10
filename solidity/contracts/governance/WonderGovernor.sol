@@ -169,26 +169,24 @@ abstract contract WonderGovernor is
       return ProposalState.Canceled;
     }
 
-    uint256 snapshot = proposalSnapshot(proposalId);
-
-    if (snapshot == 0) {
+    if (proposal.voteStart == 0) {
       revert GovernorNonexistentProposal(proposalId);
+    }
+
+    if (!_proposals[proposalId].activated) {
+      return ProposalState.WaitingActivation;
     }
 
     uint256 currentTimepoint = clock();
 
-    if (snapshot >= currentTimepoint) {
+    if (proposal.voteStart >= currentTimepoint) {
       return ProposalState.Pending;
     }
 
     uint256 deadline = proposalDeadline(proposalId);
 
     if (deadline >= currentTimepoint) {
-      if (_proposals[proposalId].activated) {
-        return ProposalState.Active;
-      } else {
-        return ProposalState.WaitingActivation;
-      }
+      return ProposalState.Active;
     } else if (!_quorumReached(proposalId) || !_voteSucceeded(proposalId)) {
       return ProposalState.Defeated;
     } else if (proposalEta(proposalId) == 0) {
@@ -206,8 +204,13 @@ abstract contract WonderGovernor is
   /**
    * @dev See {IWonderGovernor-proposalSnapshot}.
    */
-  function proposalSnapshot(uint256 proposalId) public view virtual returns (uint256) {
-    return _proposals[proposalId].voteStart;
+  function proposalSnapshot(uint256 proposalId) public view virtual returns (bytes32) {
+    /**
+     * @dev For the simplicity of the poc, we will consider the same snapshot for proposer and voters, ideally we could have two snapshots,
+     * one for the proposer that will be the blockHash of the blocknumber - 1 when the proposal is created and one for the voters that will be
+     * the blockHash of voteStart after it's mined considering that the clock is using block number and not timestamp.
+     */
+    return _proposals[proposalId].blockHash;
   }
 
   /**
@@ -350,13 +353,13 @@ abstract contract WonderGovernor is
       revert GovernorUnexpectedProposalState(proposalId, state(proposalId), bytes32(0));
     }
 
-    uint256 snapshot = clock() + votingDelay();
+    uint256 _voteStart = clock() + votingDelay();
     uint256 duration = votingPeriod();
 
     ProposalCore storage proposal = _proposals[proposalId];
     proposal.proposalType = proposalType;
     proposal.proposer = proposer;
-    proposal.voteStart = SafeCast.toUint48(snapshot);
+    proposal.voteStart = SafeCast.toUint48(_voteStart);
     proposal.voteDuration = SafeCast.toUint32(duration);
     proposal.blockHash = blockhash(block.number - 1);
 
@@ -368,8 +371,8 @@ abstract contract WonderGovernor is
       values,
       new string[](targets.length),
       calldatas,
-      snapshot,
-      snapshot + duration,
+      _voteStart,
+      _voteStart + duration,
       description
     );
 

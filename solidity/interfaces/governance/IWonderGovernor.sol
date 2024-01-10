@@ -240,11 +240,9 @@ interface IWonderGovernor is IERC165, IERC6372 {
 
   /**
    * @notice module:core
-   * @dev Timepoint used to retrieve user's votes and quorum. If using block number (as per Compound's Comp), the
-   * snapshot is performed at the end of this block. Hence, voting for this proposal starts at the beginning of the
-   * following block.
+   * @dev Blockhash used to retrieve user's votes and quorum.
    */
-  function proposalSnapshot(uint256 proposalId) external view returns (uint256);
+  function proposalSnapshot(uint256 proposalId) external view returns (bytes32);
 
   /**
    * @notice module:core
