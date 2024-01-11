@@ -30,12 +30,13 @@ contract AliceGovernor is WonderGovernor {
   }
 
   struct ProposalTrack {
-    uint256 proposalId;
     uint256 votes;
     uint256 forVotes;
     uint256 againstVotes;
     uint256 abstainVotes;
   }
+
+  error AliceGovernorAccountAlreadyVoted(uint256 proposalId, address account);
 
   constructor(address _wonderToken, IDataWarehouse _dataWarehouse) WonderGovernor('AliceGovernor', _dataWarehouse) {
     votes = WonderVotes(_wonderToken);
@@ -106,6 +107,14 @@ contract AliceGovernor is WonderGovernor {
     uint256 _weight,
     bytes memory _params
   ) internal virtual override {
+    if (receipts[_proposalId][_account].hasVoted) revert AliceGovernorAccountAlreadyVoted(_proposalId, _account);
+
+    BallotReceipt storage _receipt = receipts[_proposalId][_account];
+
+    _receipt.hasVoted = true;
+    _receipt.support = _support;
+    _receipt.votes = _weight;
+
     proposalTracks[_proposalId].votes += _weight;
     if (_support == 0) {
       proposalTracks[_proposalId].againstVotes += _weight;
@@ -116,12 +125,6 @@ contract AliceGovernor is WonderGovernor {
     } else {
       revert InvalidVoteType(_support);
     }
-
-    BallotReceipt storage _receipt = receipts[_proposalId][_account];
-
-    _receipt.hasVoted = true;
-    _receipt.support = _support;
-    _receipt.votes = _weight;
   }
 
   function hasVoted(uint256 _proposalId, address _account) external view override returns (bool) {
