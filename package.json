@@ -17,6 +17,7 @@
     "deploy:goerli": "dotenv -- bash -c 'forge script DeployGoerli -vv --slow --broadcast --rpc-url $GOERLI_RPC'",
     "deploy:local": "dotenv -- bash -c 'forge script DeployLocal -vv --slow --broadcast --rpc-url $LOCAL_RPC'",
     "deploy:mainnet": "dotenv -- bash -c 'forge script DeployMainnet -vv --slow --broadcast --rpc-url $MAINNET_RPC'",
+    "deploy:op-sepolia": "dotenv -- bash -c 'forge script DeployOpSepolia -vv --slow --broadcast --rpc-url $OP_SEPOLIA_RPC'",
     "deploy:optimism": "dotenv -- bash -c 'forge script DeployOptimism -vv --slow --broadcast --rpc-url $OPTIMISM_RPC'",
     "lint:check": "yarn lint:sol-tests && yarn lint:sol-logic && forge fmt --check",
     "lint:fix": "sort-package-json && forge fmt && yarn lint:sol-tests --fix && yarn lint:sol-logic --fix",

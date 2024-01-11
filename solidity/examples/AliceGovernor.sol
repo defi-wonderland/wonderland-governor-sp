@@ -17,7 +17,7 @@ contract AliceGovernor is WonderGovernor {
   mapping(uint256 proposalId => mapping(address => BallotReceipt)) public receipts;
   mapping(uint256 proposalId => ProposalTrack) public proposalTracks;
 
-  uint128 public immutable VP_SLOT = 0x1;
+  uint128 public constant VP_SLOT = 0x9;
 
   /// @notice Ballot receipt record for a voter
   struct BallotReceipt {

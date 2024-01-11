@@ -26,6 +26,7 @@ yarn build
 | `yarn build`            | Compile all contracts.                                     |
 | `yarn deploy:local`     | Deploy the contracts to a local fork.                      |
 | `yarn deploy:goerli`    | Deploy the contracts to Goerli testnet.                    |
+| `yarn deploy:op-sepolia`| Deploy the contracts to Optimism Sepolia testnet.          |
 | `yarn deploy:optimism`  | Deploy the contracts to Optimism mainnet.                  |
 | `yarn deploy:mainnet`   | Deploy the contracts to Ethereum mainnet.                  |
 

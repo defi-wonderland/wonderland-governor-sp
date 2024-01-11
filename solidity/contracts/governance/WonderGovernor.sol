@@ -207,8 +207,8 @@ abstract contract WonderGovernor is
   function proposalSnapshot(uint256 proposalId) public view virtual returns (bytes32) {
     /**
      * @dev For the simplicity of the poc, we will consider the same snapshot for proposer and voters, ideally we could have two snapshots,
-     * one for the proposer that will be the blockHash of the blocknumber - 1 when the proposal is created and one for the voters that will be
-     * the blockHash of voteStart after it's mined considering that the clock is using block number and not timestamp.
+     * one for the proposer that will be the blockHash of the blocknumber - 1 when the proposal is created used to validate the proposer threshold.
+     * And one for the voters used for voting, that will be the blockHash of voteStart after it's mined considering that the clock is using block number and not timestamp.
      */
     return _proposals[proposalId].blockHash;
   }
