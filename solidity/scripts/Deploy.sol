@@ -1,30 +1,69 @@
 // SPDX-License-Identifier: MIT
-pragma solidity =0.8.19;
+pragma solidity ^0.8.20;
 
-import {Greeter} from 'contracts/Greeter.sol';
-import {Script} from 'forge-std/Script.sol';
-import {IERC20} from 'isolmate/interfaces/tokens/IERC20.sol';
+import {DataWarehouse} from 'contracts/voting/DataWarehouse.sol';
+import {AliceGovernor} from 'examples/AliceGovernor.sol';
+import {RabbitToken} from 'examples/RabbitToken.sol';
+import {IWonderGovernor} from 'interfaces/governance/IWonderGovernor.sol';
+import {IWonderVotes} from 'interfaces/governance/utils/IWonderVotes.sol';
+
+import {Script, console} from 'forge-std/Script.sol';
 
 abstract contract Deploy is Script {
-  function _deploy(string memory greeting, IERC20 token) internal {
-    vm.startBroadcast();
-    new Greeter(greeting, token);
+  function _deploy(address _deployer) internal {
+    vm.startBroadcast(_deployer);
+
+    console.log('deployer', _deployer);
+
+    // Deploy the contracts
+    DataWarehouse dataWarehouse = new DataWarehouse();
+    console.log('Datawarehouse:', address(dataWarehouse));
+    address tokenAddress = vm.computeCreateAddress(_deployer, vm.getNonce(_deployer) + 1);
+    AliceGovernor governor = new AliceGovernor(tokenAddress, dataWarehouse);
+    console.log('WonderGovernor:', address(governor));
+    RabbitToken rabbitToken = new RabbitToken(AliceGovernor(payable(address(governor))));
+    console.log('WonderVotes:', address(rabbitToken));
+
     vm.stopBroadcast();
   }
 }
 
 contract DeployMainnet is Deploy {
   function run() external {
-    IERC20 weth = IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
+    address _deployer = vm.rememberKey(vm.envUint('MAINNET_DEPLOYER_PK'));
 
-    _deploy('some real greeting', weth);
+    _deploy(_deployer);
   }
 }
 
 contract DeployGoerli is Deploy {
   function run() external {
-    IERC20 weth = IERC20(0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6);
+    address _deployer = vm.rememberKey(vm.envUint('GOERLI_DEPLOYER_PK'));
 
-    _deploy('some test greeting', weth);
+    _deploy(_deployer);
+  }
+}
+
+contract DeployOpSepolia is Deploy {
+  function run() external {
+    address _deployer = vm.rememberKey(vm.envUint('OP_SEPOLIA_DEPLOYER_PRIVATE_KEY'));
+
+    _deploy(_deployer);
+  }
+}
+
+contract DeployLocal is Deploy {
+  function run() external {
+    address _deployer = vm.rememberKey(vm.envUint('LOCAL_DEPLOYER_PK'));
+
+    _deploy(_deployer);
+  }
+}
+
+contract DeployOptimism is Deploy {
+  function run() external {
+    address _deployer = vm.rememberKey(vm.envUint('OPTIMISM_DEPLOYER_PK'));
+
+    _deploy(_deployer);
   }
 }
