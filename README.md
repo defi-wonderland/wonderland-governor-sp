@@ -30,6 +30,10 @@ yarn build
 | `yarn deploy:optimism`  | Deploy the contracts to Optimism mainnet.                  |
 | `yarn deploy:mainnet`   | Deploy the contracts to Ethereum mainnet.                  |
 
+## PoC Idea
+The original poc idea was crafted by [Particle](https://twitter.com/0xParticle), [Mono](https://twitter.com/0x_mono) and [Joxes](https://twitter.com/0xJoxes) from the Research team. 
+You can find more information on why we built this on the site: [https://governance.sucks/](https://governance.sucks/)
+
 ## Licensing
 
 The primary license for Wonderland Governor contracts is MIT, see [`LICENSE`](./LICENSE).
